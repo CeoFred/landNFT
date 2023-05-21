@@ -29,10 +29,10 @@ module.exports = {
       chainId: 1337,
       // url: '',
     },
-    ropsten: {
-      url: `https://ropsten.infura.io/v3/${infuraProjectId}`,
-      from: '0xb70C09b9b7CD1d8C03d554255854043C99F87155',
-      chainId: 3,
+    sepolia: {
+      url: `https://sepolia.infura.io/v3/${infuraProjectId}`,
+      from: '0xb88Fa59fFE4a75578393b64Ad1005987B25D0b8f',
+      chainId: 11155111,
       accounts: [pkey]
     }
   },

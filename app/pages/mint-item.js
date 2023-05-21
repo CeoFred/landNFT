@@ -11,8 +11,16 @@ import KBMarket from '../artifacts/contracts/LandMarket.sol/LandMarket.json'
 
 // in this component we set the ipfs up to host our nft data of
 // file storage
-
-const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0');
+const auth =
+    'Basic ' + Buffer.from("2PyK8IPprFLPUNIzUPGRMnwG4Mx" + ':' + "0131094c94982a63d41f035bbda2f5aa").toString('base64');
+const client = ipfsHttpClient({
+   host: 'ipfs.infura.io',
+    port: 5001,
+    protocol: 'https',
+    headers: {
+        authorization: auth,
+    },
+});
 
 export default function MintItem() {
   const [fileUrl, setFileUrl] = useState(null);
@@ -35,7 +43,8 @@ export default function MintItem() {
       const added = await client.add(file, {
         progress: (prog) => console.log(`received: ${prog}`),
       });
-      const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+      console.log(added);
+      const url = `https://land-nft.infura-ipfs.io/ipfs/${added.path}`;
       setFileUrl(url);
     } catch (error) {
       console.log('Error uploading file:', error);
@@ -53,7 +62,8 @@ export default function MintItem() {
     });
     try {
       const added = await client.add(data);
-      const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+      console.log(added);
+      const url = `https://land-nft.infura-ipfs.io/ipfs/${added.path}`;
       // run a function that creates sale and passes in the url
       createSale(url);
 
@@ -63,20 +73,22 @@ export default function MintItem() {
   }
 
   async function createSale(url) {
-    // create the items and list them on the marketplace
+
+    try {
+          // create the items and list them on the marketplace
     const web3Modal = new Web3Modal();
     const connection = await web3Modal.connect();
     const provider = new ethers.providers.Web3Provider(connection);
     const signer = provider.getSigner();
-
     // we want to create the token
     let contract = new ethers.Contract(nftaddress, NFT.abi, signer);
-    let transaction = await contract.mintToken(url);
     
+    let transaction = await contract.mintToken(url);
+   
     let tx = await transaction.wait();
-    // console.log('Transactions ====', tx);
+    console.log('Transactions ====', tx);
     let event = tx.events[0];
-    // console.log('Transaction Events  ====', event);
+    console.log('Transaction Events  ====', event);
 
     let value = event.args[2];
     let tokenId = value.toNumber();
@@ -94,6 +106,10 @@ export default function MintItem() {
     });
     await transaction.wait();
     router.push('./');
+    } catch (error) {
+        console.log(error);
+    }
+
   }
 
   return (
